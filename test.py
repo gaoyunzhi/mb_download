@@ -20,9 +20,15 @@ def download(main_url):
 	novel_name = soup.find('h1').text
 	result = []
 	for sub_url in findLinks(soup):
-		result.append(getText(main_url + sub_url))
+		text = getText(main_url + sub_url)
+		if text.endswith('下一页继续阅读'):
+			text = text.rsplit('\n', 1)[0].strip()
+		result.append(text)
+	result = compactText('\n\n'.join(result))
+	for item in ['&amp;', '—zwnj;', '&nbsp']:
+		result = result.replace(item, '')
 	with open('download/%s.txt' % novel_name, 'w') as f:
-		f.write(compactText(''.join(result)))
+		f.write(result)
 	
 if __name__ == "__main__":
 	download('https://www.mbtxt.la/go/94213/')
