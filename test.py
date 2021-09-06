@@ -20,10 +20,13 @@ def download(main_url):
 	novel_name = soup.find('h1').text
 	result = []
 	for sub_url in findLinks(soup):
-		text = getText(main_url + sub_url)
-		if text.endswith('下一页继续阅读'):
+		for count in range(1, 5):
+			text = getText(main_url + sub_url.replace('.html', '_%d.html' % count))
+			if not text.endswith('下一页继续阅读'):
+				result.append(text)
+				break
 			text = text.rsplit('\n', 1)[0].strip()
-		result.append(text)
+			result.append(text)
 	result = compactText('\n\n'.join(result))
 	for item in ['&amp;', '—zwnj;', '&nbsp']:
 		result = result.replace(item, '')
