@@ -13,6 +13,8 @@ def findLinks(soup):
 def getText(link):
 	soup = BeautifulSoup(cached_url.get(link, encoding='gbk'), 'html.parser')
 	center = soup.find('div', class_='readcontent')
+	for item in center.find_all('center'):
+		item.decompose()
 	return center.text
 
 def download(main_url):
@@ -22,13 +24,13 @@ def download(main_url):
 	for sub_url in findLinks(soup):
 		for count in range(1, 5):
 			text = getText(main_url + sub_url.replace('.html', '_%d.html' % count))
-			if not text.endswith('下一页继续阅读'):
+			if not text.endswith('本章未完，点击下一页继续阅读'):
 				result.append(text)
 				break
-			text = text.rsplit('\n', 1)[0].strip()
+			text = text.rsplit('本章未完，点击下一页继续阅读', 1)[0].strip()
 			result.append(text)
 	result = compactText('\n\n'.join(result))
-	for item in ['&amp;', '—zwnj;', '&nbsp']:
+	for item in ['&amp;', '—zwnj;', '&nbsp', '']:
 		result = result.replace(item, '')
 	with open('download/%s.txt' % novel_name, 'w') as f:
 		f.write(result)
